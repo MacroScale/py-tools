@@ -1,0 +1,24 @@
+
+body{
+    padding: 10px;
+}
+.headerbar {
+    display: grid;
+    grid-template-columns: 100px auto;
+    align-items: center;
+    height: 90px;
+    overflow: hidden;
+    border-bottom: 1px solid black;
+}
+
+.headerbar img {
+    width: 80px;
+    height: 100%;
+    object-fit: contain;
+}
+
+.headerbar h1{
+    margin: 0;
+    padding: 0;
+}
+

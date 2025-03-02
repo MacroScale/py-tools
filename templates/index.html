@@ -1,0 +1,44 @@
+{% extends "layout.html" %}
+
+{% block head %}
+<!-- <link rel="stylesheet" href="/index.css"> -->
+{% endblock %}
+
+{% block content %}
+<table class="table table-hover">
+  <thead>
+    <tr>
+      <th scope="col">Script Name</th>
+      <th scope="col">Status</th>
+      <th scope="col">Last Status</th>
+      <th scope="col">Last Run</th>
+    </tr>
+  </thead>
+  <tbody>
+    <tr>
+      <th scope="row">Youtube Extactor</th>
+      <td>Not Running</td>
+      <td>Complete</td>
+      <td> 23/Apr/2023:11:42:35 </td>
+    </tr>
+    <tr>
+      <th scope="row">Other Tool 1</th>
+      <td>Not Running</td>
+      <td>Complete</td>
+      <td> 23/Apr/2023:11:42:35 </td>
+    </tr>
+    <tr>
+      <th scope="row">Other Tool 2</th>
+      <td>In progress</td>
+      <td>...</td>
+      <td> 23/Apr/2023:11:42:35 </td>
+    </tr>
+    <tr>
+      <th scope="row">Other Tool 3</th>
+      <td>Not Running</td>
+      <td>Error</td>
+      <td> 23/Apr/2023:11:42:35 </td>
+    </tr>
+  </tbody>
+</table>
+{% endblock %}

@@ -1,4 +1,4 @@
-from db import DB
+from config.db import DB
 
 db = DB();
 
@@ -11,6 +11,8 @@ def processData():
 def saveToDb():
     print("saving data to db")
 
-# def dbTest():
-#     result = db.execute("select * from \"beam-demo\".users")
-#     print(result)
+def dbTest():
+    result = db.execute("select * from \"beam-demo\".users")
+    print(result)
+
+dbTest()
