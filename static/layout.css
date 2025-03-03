@@ -1,3 +1,9 @@
+@media (prefers-color-scheme: dark) {
+  .element {
+    color: var(--bs-primary-text-emphasis);
+    background-color: var(--bs-primary-bg-subtle);
+  }
+}
 
 body{
     padding: 10px;
@@ -6,9 +12,9 @@ body{
     display: grid;
     grid-template-columns: 100px auto;
     align-items: center;
-    height: 90px;
+    height: 110px;
     overflow: hidden;
-    border-bottom: 1px solid black;
+    border-bottom: 1px solid white;
 }
 
 .headerbar img {

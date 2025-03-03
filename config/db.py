@@ -4,7 +4,7 @@ from dotenv import load_dotenv
 import os
 from os import environ
 
-class DB:
+class PGDB:
     def __init__(self):
         load_dotenv()
 
@@ -29,3 +29,28 @@ class DB:
             result = cursor.fetchall()
             cursor.close()
             return result
+
+class SQLiteDB:
+    def __init__(self):
+        self.dir_path = os.path.abspath("py_tool_data")
+        self.db_path = os.path.join(self.dir_path, "sqlite.db")
+
+        if not os.path.exists(self.dir_path):
+            os.makedirs(self.dir_path)
+
+        if not os.path.exists(self.db_path):
+            open(self.db_path, 'w').close()
+
+        connect_str = f"sqlite:///sqlite.db"
+        self.engine = create_engine(connect_str, pool_size=5, max_overflow=10, poolclass=QueuePool)
+
+        if not self.engine:
+            raise ValueError("Failed to connect to Postgres database")
+
+    def execute(self, statement: str):
+        with self.engine.connect() as connection:
+            cursor = connection.execute(text(statement))
+            result = cursor.fetchall()
+            cursor.close()
+            return result
+
