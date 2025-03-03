@@ -1,5 +1,5 @@
 import datetime
-from src.config.db import PGDB
+from shared_utils.db import PGDB
 
 def test_basic_statement():
     db = PGDB();

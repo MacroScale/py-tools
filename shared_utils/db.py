@@ -1,3 +1,4 @@
+from typing import Union
 from sqlalchemy import create_engine, text
 from sqlalchemy.pool import QueuePool
 from dotenv import load_dotenv
@@ -59,8 +60,8 @@ class SQLiteDB:
                 id INTEGER PRIMARY KEY AUTOINCREMENT NOT NULL,
                 name TEXT NOT NULL,
                 execution_status TEXT DEFAULT 'not_running',
-                exit_status TEXT DEFAULT 'n/a',
-                last_run timestamp DEFAULT CURRENT_TIMESTAMP
+                exit_status TEXT DEFAULT NULL,
+                last_run timestamp DEFAULT NULL
             ); 
         """
         self.execute(statement)
@@ -73,7 +74,7 @@ class SQLiteDB:
         self.create_tables()
 
 
-    def execute(self, statement: str, args: list[dict] = []):
+    def execute(self, statement: str, args: Union[list[dict], dict, list[tuple]] = []):
         with self.engine.connect() as connection:
             cursor = connection.execute(text(statement), args)
 
