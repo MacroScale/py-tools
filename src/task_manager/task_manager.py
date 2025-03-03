@@ -34,13 +34,6 @@ class TaskManager:
                 with self._lock:
                     self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
 
-            stdout, stderr = process.communicate()
-            if stdout:
-                stdout_buffer.write(stdout)
-            with self._lock:
-                self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
-                self.tasks[task_id]["returncode"] = process.poll()
-
         except FileNotFoundError:
             with self._lock:
                 self.tasks[task_id]["status"] = "error"
