@@ -1,47 +1,45 @@
-import subprocess
+from subprocess import Popen, PIPE, CalledProcessError
 import threading
 import sys
 import time 
 import io 
+import os 
 
 class TaskManager:
     def __init__(self):
         self.tasks = {}
         self._lock = threading.Lock()
 
-    def stream_output(self, process, task_id):
-        stdout_buffer = io.StringIO()
-
-        while process.returncode is None:
-            for line in process.stdout:
-                stdout_buffer.write(line)
-                with self._lock:
-                    self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
-
-            process.poll()
-
     def run_script(self, script_path, task_id):
         try:
-            process = subprocess.Popen([sys.executable, script_path],
-                                       stdout=subprocess.PIPE,
-                                       stderr=subprocess.PIPE,
-                                       bufsize=1000,
-                                       text=True)
+            process = Popen([sys.executable, script_path],
+                                       stdout=PIPE,
+                                       bufsize=1,
+                                       universal_newlines=True,
+                                       text=True,
+                                )
+
             with self._lock:
                 self.tasks[task_id]["process"] = process
                 self.tasks[task_id]["status"] = "running"
 
-            # start output streaming in a separate thread
-            stream_thread = threading.Thread(
-                target=self.stream_output,
-                args=(process, task_id),
-                daemon=True
-            )
+            stdout_buffer = io.StringIO()
 
+            # poll process for new output until finished
+            while True:
+                nextline = process.stdout.readline()
+                if nextline == '' and process.poll() is not None:
+                    break
+                stdout_buffer.write(nextline)
+                with self._lock:
+                    self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
+
+            stdout, stderr = process.communicate()
+            if stdout:
+                stdout_buffer.write(stdout)
             with self._lock:
-                self.tasks[task_id]["stream_thread"] = stream_thread
-
-            stream_thread.start()
+                self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
+                self.tasks[task_id]["returncode"] = process.poll()
 
         except FileNotFoundError:
             with self._lock:
