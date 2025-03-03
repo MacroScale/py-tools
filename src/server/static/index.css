@@ -1,3 +1,16 @@
-tbody tr :hover {
-    background-color: red;
+.accordion-button:hover {
+    background-color: #054150;
+}
+
+.terminal textarea {
+    width: 800px;
+    height: 600px;
+    background-color: black;
+    text-align: justify;
+    white-space: pre-line;
+    overflow: auto;
+
+	font-family: Courier New,Courier,Lucida Sans Typewriter,Lucida Typewriter,monospace; 
+    font-weight: 400;
+    font-style: normal;
 }

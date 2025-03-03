@@ -1,44 +1,69 @@
 {% extends "layout.html" %}
 
 {% block head %}
-<!-- <link rel="stylesheet" href="/index.css"> -->
+<link rel="stylesheet" href="/index.css"> 
 {% endblock %}
 
 {% block content %}
-<table class="table table-hover" data-bs-theme="dark">
-  <thead>
-    <tr>
-      <th scope="col">Script Name</th>
-      <th scope="col">Status</th>
-      <th scope="col">Last Status</th>
-      <th scope="col">Last Run</th>
-    </tr>
-  </thead>
-  <tbody>
-    <tr>
-      <th scope="row">Youtube Extactor</th>
-      <td>Not Running</td>
-      <td>Complete</td>
-      <td> 23/Apr/2023:11:42:35 </td>
-    </tr>
-    <tr>
-      <th scope="row">Other Tool 1</th>
-      <td>Not Running</td>
-      <td>Complete</td>
-      <td> 23/Apr/2023:11:42:35 </td>
-    </tr>
-    <tr>
-      <th scope="row">Other Tool 2</th>
-      <td>In progress</td>
-      <td>...</td>
-      <td> 23/Apr/2023:11:42:35 </td>
-    </tr>
-    <tr>
-      <th scope="row">Other Tool 3</th>
-      <td>Not Running</td>
-      <td>Error</td>
-      <td> 23/Apr/2023:11:42:35 </td>
-    </tr>
-  </tbody>
-</table>
+<div class="accordion accordion-flush" id="toolsAccordion">
+    {% for tool in tools %}
+        <div class="accordion-item" data-id="script-{{tool.id}}">
+            <h2 class="accordion-header" id="flush-heading{{ loop.index }}">
+                <button class="accordion-button collapsed" type="button" data-bs-toggle="collapse" data-bs-target="#flush-collapse{{ loop.index }}" aria-expanded="false" aria-controls="flush-collapse{{ loop.index }}">
+                    <b>{{ tool.name }}</b> &emsp;<code> {{ tool.execution_status }} </code>
+                </button>
+            </h2>
+            <div id="flush-collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ loop.index }}" data-bs-parent="#toolsAccordion">
+                <div class="accordion-body">
+                    <span style="display: flex; gap: 10px;">
+                        <strong>Script Name:</strong> {{ tool.name }}
+                        <strong>Execution Status:</strong> {{ tool.execution_status }}
+                        <strong>Exit Status:</strong> {{ tool.exit_status }}
+                        <strong>Last Run:</strong> {{ tool.last_run }}
+                    </span>
+                    <div class="terminal">
+                        <textarea readonly="readonly">
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET / HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /layout.css HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET / HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /layout.css HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET / HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /layout.css HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:29] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET / HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /layout.css HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /index.css HTTP/1.1" 200 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                            127.0.0.1 - - [03/Mar/2025 15:52:47] "GET /logo.png HTTP/1.1" 304 -
+                        </textarea>
+                    </div>
+                </div>
+            </div>
+        </div>
+    {% endfor %}
+
+    <script src="https://cdnjs.cloudflare.com/ajax/libs/socket.io/4.8.1/socket.io.js" integrity="sha512-8BHxHDLsOHx+flIrQ0DrZcea7MkHqRU5GbTHmbdzMRnAaoCIkZ97PqZcXJkKZckMMhqfoeaJE+DNUVuyoQsO3Q==" crossorigin="anonymous" referrerpolicy="no-referrer"></script>
+    <script src="/index.js"></script>
+</div>
+
 {% endblock %}

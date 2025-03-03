@@ -1,7 +1,8 @@
 import pytest
 import datetime 
 import src.queries.get_tools as query
-from shared_utils.db import SQLiteDB 
+from src.models.tool import Tool
+from src.config.db import SQLiteDB 
 
 @pytest.fixture(scope="function", autouse=True)
 def init_test_data():
@@ -24,4 +25,6 @@ def init_test_data():
 def test_query_get_tools():
     db = SQLiteDB(test=True)
     tools = query.run(db)
-    assert tools == [(1, 'test_tool_1.py', 'not_running', 'complete', '2025-03-03T00:00:00')]
+    print(tools)
+
+    assert tools == [Tool(1, 'test_tool_1.py', 'not_running', 'complete', '2025-03-03T00:00:00')]

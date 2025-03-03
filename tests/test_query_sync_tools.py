@@ -3,7 +3,8 @@ import datetime
 from src.utils.get_local_tools import get_local_tools
 import src.queries.sync_tools as query_sync
 import src.queries.get_tools as query_get_tools
-from shared_utils.db import SQLiteDB 
+from src.models.tool import Tool
+from src.config.db import SQLiteDB 
 
 @pytest.fixture(scope="function", autouse=True)
 def init_test_data():
@@ -32,10 +33,10 @@ def test_query_sync_remove():
 
     # checks if remove old it removed 
     assert new_tools == [
-            (2, 'tool_1.py', 'not_running', None, None),
-            (3, 'tool_2.py', 'not_running', None, None), 
-            (4, 'tool_3.py', 'not_running', None, None), 
-            (5, 'tool_4.py', 'not_running', None, None)
+            Tool(2, 'tool_1.py', 'not_running', None, None),
+            Tool(3, 'tool_2.py', 'not_running', None, None), 
+            Tool(4, 'tool_3.py', 'not_running', None, None), 
+            Tool(5, 'tool_4.py', 'not_running', None, None)
         ]
 
 def test_query_sync_remove_and_persist():
@@ -46,8 +47,8 @@ def test_query_sync_remove_and_persist():
     new_tools = query_get_tools.run(db)
 
     assert new_tools == [
-            (1, 'test_tool_1.py', 'not_running', 'complete', '2025-03-03T00:00:00'), 
-            (2, 'tool_1.py', 'not_running', None, None),                             
-            (3, 'tool_2.py', 'not_running', None, None),                             
-            (4, 'tool_4.py', 'not_running', None, None)                              
+            Tool(1, 'test_tool_1.py', 'not_running', 'complete', '2025-03-03T00:00:00'), 
+            Tool(2, 'tool_1.py', 'not_running', None, None),                             
+            Tool(3, 'tool_2.py', 'not_running', None, None),                             
+            Tool(4, 'tool_4.py', 'not_running', None, None)                              
          ]

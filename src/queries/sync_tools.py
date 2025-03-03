@@ -1,4 +1,4 @@
-from shared_utils.db import SQLiteDB 
+from src.config.db import SQLiteDB 
 
 def run(db: SQLiteDB, tools: list[str]):
     stmt1 = """

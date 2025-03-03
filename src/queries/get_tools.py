@@ -1,8 +1,14 @@
-from shared_utils.db import SQLiteDB 
+from src.config.db import SQLiteDB 
+from src.models.tool import Tool 
 
-def run(db: SQLiteDB):
+def run(db: SQLiteDB) -> list[Tool]:
     statement = """
         SELECT * from scripts
     """
-    result = db.execute(statement)
+    resp = db.execute(statement)
+
+    result = []
+    for el in resp:
+        result.append(Tool.MapTuple(el));
+
     return result
