@@ -7,4 +7,3 @@ while True:
     idx += 1
     sys.stdout.flush()
     time.sleep(0.1)
-

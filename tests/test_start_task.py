@@ -10,8 +10,12 @@ def test_start_task_stdout():
 
     task_manager.start_task(tool_path, 1)
     time.sleep(1)
+    
     out = task_manager.get_output(1)
     stdout = out["stdout"]
-    task_manager.stop_all_tasks()
+
+    print(stdout)
+
+    task_manager.stop_task(1)
 
     assert stdout

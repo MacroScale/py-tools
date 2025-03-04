@@ -9,5 +9,8 @@ app_server = Flask(
            )
 
 socketio = SocketIO(app_server, async_mode="threading")
+socket_conns = {}
+
+from src.task_manager import task_manager
 
 from . import routes
