@@ -17,11 +17,11 @@ class TaskManager:
         while True:
             nextline = self.tasks[task_id]["process"].stdout.readline()
             if nextline == '' and self.tasks[task_id]["process"].poll() is not None:
+                self.tasks[task_id]["status"] = "not_running"
                 break
             stdout_buffer.write(nextline)
             with self._lock:
                 self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
-
 
     def run_script(self, tool_path, task_id):
         try:
