@@ -25,7 +25,7 @@ class TaskManager:
 
     def run_script(self, tool_path, task_id):
         try:
-            process = Popen([sys.executable, tool_path],
+            process = Popen([sys.executable, "-u", tool_path],
                                        stdout=PIPE,
                                        bufsize=1,
                                        universal_newlines=True,
