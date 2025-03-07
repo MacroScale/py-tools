@@ -10,4 +10,3 @@ async def update_tools_files():
         tool_data = get_local_tools()
         query_sync_tools.run(db, tool_data)
         await asyncio.sleep(300) # 5 mins
-

@@ -20,9 +20,25 @@ def index():
 def api_start_task(tool_id):
     db = SQLiteDB()
     tool_path = query_get_tool_path.run(db, tool_id)
-    task_manager.start_task(tool_path, tool_id)
+
+    # check if task is already running
+    if (task_manager.exists(tool_id)):
+        return jsonify(status=500, err="task is already running")
+    else:
+        task_manager.start_task(tool_path, tool_id)
+        return jsonify(status=200, task_id=tool_id)
+
+@app_server.route("/api/tasklist", methods=["GET"])
+def api_task_list():
+    l = [] 
+    for task_id in task_manager.tasks:
+        task = task_manager.tasks[task_id]
+        l.append({
+            "tool_id": task["tool_id"],
+            "status": task["status"]
+        })
+    return jsonify(task_list=l)
     
-    return jsonify(status=200, task_id=tool_id)
 
 @socketio.on('connect')
 def handle_connect():

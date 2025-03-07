@@ -52,6 +52,7 @@ class TaskManager:
 
     def start_task(self, tool_path: str, tool_id: int):
         self.tasks[tool_id] = {
+                 "tool_id": tool_id, 
                  "tool_path": tool_path, 
                  "status": "waiting",
                  "process": None,
@@ -73,6 +74,12 @@ class TaskManager:
             if task_id in self.tasks:
                 return dict(self.tasks[task_id])
         return None
+
+    def exists(self, task_id):
+        with self._lock:
+            if task_id in self.tasks:
+                return True
+        return False 
 
     def get_output(self, task_id: int):
         with self._lock:

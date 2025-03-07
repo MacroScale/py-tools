@@ -1,9 +1,11 @@
-document.addEventListener('DOMContentLoaded', function(){
+document.addEventListener('DOMContentLoaded', async function(){
     const startBtns = Array.from(document.getElementsByClassName("start-task"));
     const endBtns = Array.from(document.getElementsByClassName("end-task"));
 
     startBtns.forEach(el => el.addEventListener("click", startTask))
     endBtns.forEach(el=> el.addEventListener("click", endTask))
+
+    await init()
 });
 
 var timePreviousAction = Date.now();
@@ -16,7 +18,7 @@ async function startTask(event){
     id = Number(event.target.getAttribute("data-id").split("-")[1])
 
     try {
-        if (scriptsStatusLookup.filter(x => x.id==id)[0].status == "not_running"){
+        //if (scriptsStatusLookup.filter(x => x.id==id)[0].status == "not_running"){
             console.log("starting task:", id)
             // send request to start task and wait for 200 resp
             let resp = await fetch(`/api/start/${id}`);
@@ -26,8 +28,9 @@ async function startTask(event){
 
             // once task has started then create a socket connection
             createConnection(id)
-            updateStatus(id, "running")
-        }
+            let taskList = await getTaskList()
+            updateStatus(taskList)
+        //}
     }
     catch (err){
         console.log("Error starting task:", err)
@@ -35,17 +38,44 @@ async function startTask(event){
     }
 }
 
+function updateStatus(taskList){
+    let els = document.getElementsByClassName("cur-status");
+
+    for (let i=0; i<els.length; ++i) {
+        let el = els[i];
+        let id = Number(el.getAttribute("data-id").split("-")[1]);
+
+        let filteredTasks = taskList?.task_list?.filter((task) => task.tool_id == id) || [];
+        let newStatus = filteredTasks.length > 0 ? filteredTasks[0].status : "not_running";
+
+        el.textContent = newStatus;
+    } 
+}
+
 async function endTask(event){
     if (timePreviousAction+timeoutPeriod > Date.now()) { return; }
     timePreviousAction = Date.now() 
-
-
 }
 
-function updateStatus(id, status){
-    const buttons = Array.from(document.getElementsByClassName("cur-status"));
-    const el = buttons.filter(x => x.getAttribute("data-id").split("-")[1] == id.toString())[0]
-    el.innerText = status
+async function getTaskList(){
+    let resp = await fetch("/api/tasklist");
+    let respData = await resp.json()
+    return respData
+}
 
-    scriptsStatusLookup[id].status = status
+async function initSockets(taskList){
+    try{
+        for (idx in taskList.task_list){
+            let el = taskList.task_list[idx]
+            createConnection(el.tool_id)
+        }
+    } catch(err){
+        console.log("ERROR initSockets:", err);
+    }
+}
+
+async function init(){
+    taskList = await getTaskList()
+    initSockets(taskList)
+    updateStatus(taskList)
 }
