@@ -16,7 +16,7 @@ async function startTask(event){
     id = Number(event.target.getAttribute("data-id").split("-")[1])
 
     try {
-        if (scriptsStatusLookup[id].status == "not_running"){
+        if (scriptsStatusLookup.filter(x => x.id==id)[0].status == "not_running"){
             console.log("starting task:", id)
             // send request to start task and wait for 200 resp
             let resp = await fetch(`/api/start/${id}`);
