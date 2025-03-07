@@ -23,8 +23,11 @@ async function startTask(event){
             // send request to start task and wait for 200 resp
             let resp = await fetch(`/api/start/${id}`);
             let respData = await resp.json()
+
             console.log(respData)
-            if (resp.status !== 200) {throw Error("server failed to respond with 200")}
+            if (respData.status !== 200) {
+                throw Error(`server error (${respData.status}): ${respData.err}`)
+            }
 
             // once task has started then create a socket connection
             createConnection(id)
