@@ -35,7 +35,8 @@ def api_task_list():
         task = task_manager.tasks[task_id]
         l.append({
             "tool_id": task["tool_id"],
-            "status": task["status"]
+            "status": task["status"],
+            "unread": task["unread"]
         })
     return jsonify(task_list=l)
     
