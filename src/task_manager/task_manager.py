@@ -4,6 +4,8 @@ import sys
 import time 
 import io 
 import os 
+import select 
+import fcntl
 
 from src.task_manager.slog import Slog 
 
@@ -13,29 +15,30 @@ class TaskManager:
         self._lock = threading.Lock()
 
     def stream_output(self, task_id):
-        stdout_buffer = io.StringIO()
-        # stderr_buffer = io.StringIO()
+        process = self.tasks[task_id]["process"]
 
-        # poll process for new output until finished
-        while True:
-            nextline_stdout = self.tasks[task_id]["process"].stdout.readline()
-            nextline_stderr = ""
-            # nextline_stderr = self.tasks[task_id]["process"].stderr.readline()
-            if nextline_stdout == '' and self.tasks[task_id]["process"].poll() is not None:
-                self.tasks[task_id]["status"] = "not_running"
-                break
+        # set stdout and stderr to non-blocking mode
+        for stream in [process.stdout, process.stderr]:
+            fd = stream.fileno()
+            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
+            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
 
-            stdout_buffer.write(nextline_stdout)
-            # stderr_buffer.write(nextline_stderr)
-            
-            if nextline_stdout:
-                with self._lock:
-                    self.tasks[task_id]["slogger"].add_log("out", nextline_stdout)
-            elif nextline_stderr:
-                with self._lock:
-                    self.tasks[task_id]["slogger"].add_log("err", nextline_stderr)
-                    # self.tasks[task_id]["stdout"] = stdout_buffer.getvalue()
-                    # self.tasks[task_id]["stderr"] = stderr_buffer.getvalue()
+        while process.poll() is None:
+            readable, _, _ = select.select([process.stdout, process.stderr], [], [])
+
+            for stream in readable:
+                data = stream.read()
+                if not data: continue;
+
+                if stream == process.stdout:
+                    with self._lock:
+                        self.tasks[task_id]["slogger"].add_log("out", data)
+                else:
+                    with self._lock:
+                        self.tasks[task_id]["slogger"].add_log("err", data)
+
+        with self._lock:
+            self.tasks[task_id]["status"] = "not_running"
 
     def run_script(self, tool_path, task_id):
         try:
@@ -91,7 +94,8 @@ class TaskManager:
             if task_id in self.tasks:
                 script_arr = self.tasks[task_id]["tool_path"].split("/")
                 script_name = script_arr[len(script_arr)-1]
-                self.tasks[task_id]["slogger"].add_log("init", f"task started: {script_name}", newline=True)
+                self.tasks[task_id]["slogger"].add_log("init", f"task started: {script_name}\n")
+
     def get_task_info(self, task_id):
         with self._lock:
             if task_id in self.tasks:
