@@ -1,7 +1,18 @@
 console.log("socketsConfig.js here and ready for you!")
 
 function createConnection(id){
-    let socket = io.connect('http://localhost:8080', {
+    // Get the current host and port from the browser's location
+    const host = window.location.hostname;  // This will get 'localhost' or the domain name
+
+    // In production, if no port is specified, don't include it
+    const port = window.location.port && window.location.port !== '80' && window.location.port !== '443'
+        ? `:${window.location.port}`  // only append port if it's not 80 or 443
+        : '';  // no port in production on default HTTP/HTTPS ports
+
+    const protocol = window.location.protocol === 'https:' ? 'https' : 'http';
+    const finalSocketUrl = `${protocol}://${host}${port}`;
+
+    let socket = io.connect(finalSocketUrl, {
         query: {id: id}
     });
 

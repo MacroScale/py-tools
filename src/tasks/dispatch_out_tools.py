@@ -2,9 +2,9 @@ from src.task_manager.task_manager import task_manager
 from src.server import socketio
 from src.server import socket_conns 
 
-import asyncio 
+import gevent
 
-async def dispatch_out_tools():
+def dispatch_out_tools():
     """ used to dispatch the output of a tool to corresponding socket """
     while True:
         # iterate over a copy of the tasks ids 
@@ -18,5 +18,4 @@ async def dispatch_out_tools():
             if id in socket_conns:
                 session_id = socket_conns[id]
                 socketio.emit('stream', {"out": out, "status": status}, to=session_id)
-
-        await asyncio.sleep(0.2)
+        gevent.sleep(0.2)

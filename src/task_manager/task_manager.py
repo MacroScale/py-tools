@@ -1,10 +1,10 @@
-from subprocess import Popen, PIPE, CalledProcessError
-import threading
+import gevent
+from gevent.select import select
+import gevent.subprocess
+from gevent.lock import RLock
+
 import sys
-import time 
-import io 
 import os 
-import select 
 import fcntl
 
 from src.task_manager.slog import Slog 
@@ -12,25 +12,33 @@ from src.task_manager.slog import Slog
 class TaskManager:
     def __init__(self):
         self.tasks = {}
-        self._lock = threading.Lock()
+        self._lock = RLock()
 
     def stream_output(self, task_id):
         process = self.tasks[task_id]["process"]
 
         # set stdout and stderr to non-blocking mode
-        for stream in [process.stdout, process.stderr]:
-            fd = stream.fileno()
-            fl = fcntl.fcntl(fd, fcntl.F_GETFL)
-            fcntl.fcntl(fd, fcntl.F_SETFL, fl | os.O_NONBLOCK)
+        stdout_fd = process.stdout.fileno()
+        stderr_fd = process.stderr.fileno()
+
+        fl_stdout = fcntl.fcntl(stdout_fd, fcntl.F_GETFL)
+        fcntl.fcntl(stdout_fd, fcntl.F_SETFL, fl_stdout | os.O_NONBLOCK)
+
+        fl_stderr = fcntl.fcntl(stderr_fd, fcntl.F_GETFL)
+        fcntl.fcntl(stderr_fd, fcntl.F_SETFL, fl_stderr | os.O_NONBLOCK)
 
         while process.poll() is None:
-            readable, _, _ = select.select([process.stdout, process.stderr], [], [])
+            readable, _, _ = select([stdout_fd, stderr_fd], [], [])
 
-            for stream in readable:
-                data = stream.read()
+            for fd in readable:
+                data = None;
+                if fd == stdout_fd:
+                    data = os.read(stdout_fd, 4096)
+                elif fd == stderr_fd:
+                    data = os.read(stderr_fd, 4096)
                 if not data: continue;
 
-                if stream == process.stdout:
+                if fd == stdout_fd:
                     with self._lock:
                         self.tasks[task_id]["slogger"].add_log("out", data)
                 else:
@@ -39,16 +47,15 @@ class TaskManager:
 
         with self._lock:
             self.tasks[task_id]["status"] = "not_running"
-
             script_arr = self.tasks[task_id]["tool_path"].split("/")
             script_name = script_arr[len(script_arr)-1]
             self.tasks[task_id]["slogger"].add_log("os", f"task ended: {script_name}\n")
 
     def run_script(self, tool_path, task_id):
         try:
-            process = Popen([sys.executable, "-u", tool_path],
-                                       stdout=PIPE,
-                                       stderr=PIPE,
+            process = gevent.subprocess.Popen([sys.executable, "-u", tool_path],
+                                       stdout=gevent.subprocess.PIPE,
+                                       stderr=gevent.subprocess.PIPE,
                                        bufsize=1,
                                        universal_newlines=True,
                                        text=True,
@@ -57,9 +64,8 @@ class TaskManager:
                 self.tasks[task_id]["process"] = process
                 self.tasks[task_id]["status"] = "running"
 
-            thread = threading.Thread(target=self.stream_output, args=(task_id,))
-            self.tasks[task_id]["stream_output_thread"] = thread 
-            self.tasks[task_id]["stream_output_thread"].start()
+            greenlet = gevent.spawn(self.stream_output, task_id)
+            self.tasks[task_id]["stream_output_greenlet"] = greenlet
 
         except FileNotFoundError:
             with self._lock:
@@ -79,17 +85,17 @@ class TaskManager:
                      "tool_path": tool_path, 
                      "status": "waiting",
                      "process": None,
-                     "thread": None,
+                     "greenlet": None,
                      "returncode": None,
-                     "stream_thread": None,
+                     "stream_output_greenlet": None,
                      "slogger": Slog(),
                      "stdout": "",
                      "stderr": "" 
                 }
 
-        thread = threading.Thread(target=self.run_script, args=(tool_path, tool_id))
-        self.tasks[tool_id]["thread"] = thread
-        thread.start()
+        greenlet = gevent.spawn(self.run_script, tool_path, tool_id)
+        self.tasks[tool_id]["greenlet"] = greenlet
+
         print("\ntask start:", tool_path, "\n")
         self.init_task_log(tool_id)
 
@@ -145,7 +151,7 @@ class TaskManager:
 
     def stop_task(self, task_id):
         task_info = self.get_task_info(task_id)
-        if task_info and task_info["process"] and task_info["stream_output_thread"]:
+        if task_info and task_info["process"] and task_info["stream_output_greenlet"]:
             task_info["process"].terminate()
             task_info["status"] = "not_running"
 

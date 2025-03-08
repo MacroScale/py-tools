@@ -8,7 +8,7 @@ app_server = Flask(
                static_url_path=""
            )
 
-socketio = SocketIO(app_server, async_mode="threading")
+socketio = SocketIO(app_server, async_mode="gevent", cors_allowed_origins="*")
 socket_conns = {}
 
 from src.task_manager import task_manager
