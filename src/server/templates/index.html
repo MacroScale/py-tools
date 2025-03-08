@@ -15,18 +15,22 @@
             </h2>
             <div id="flush-collapse{{ loop.index }}" class="accordion-collapse collapse" aria-labelledby="flush-heading{{ loop.index }}" data-bs-parent="#toolsAccordion">
                 <div class="accordion-body">
-                    <div class="task-buttons" id="task-buttons-{{tool.id}}">
-                        <button class="start-task btn btn-primary" data-id="script-{{tool.id}}">Start Task</button>
-                        <button class="end-task btn btn-danger" data-id="script-{{tool.id}}">End Task</button>
+                    <div class="left-panel">
+                        <div class="terminal" id="terminal-{{tool.id}}">
+                            <textarea readonly="readonly">{{ output_data[tool.id]["stdout"] }}</textarea>
+                        </div>
                     </div>
-                    <span style="display: flex; gap: 10px;">
-                        <strong>Script Name:</strong> {{ tool.name }}
-                        <strong>Execution Status:</strong> {{ tool.execution_status }}
-                        <strong>Exit Status:</strong> {{ tool.exit_status }}
-                        <strong>Last Run:</strong> {{ tool.last_run }}
-                    </span>
-                    <div class="terminal" id="terminal-{{tool.id}}">
-                        <textarea readonly="readonly">{{ output_data[tool.id]["stdout"] }}</textarea>
+                    <div class="right-panel">
+                        <span style="display: flex; gap: 10px;">
+                            <strong>Script Name:</strong> {{ tool.name }}
+                            <!-- <strong>Execution Status:</strong> {{ tool.execution_status }}
+                            <strong>Exit Status:</strong> {{ tool.exit_status }}
+                            <strong>Last Run:</strong> {{ tool.last_run }} -->
+                        </span> 
+                        <div class="task-buttons" id="task-buttons-{{tool.id}}">
+                            <button class="start-task btn btn-primary" data-id="script-{{tool.id}}">Start Task</button>
+                            <button class="end-task btn btn-danger" data-id="script-{{tool.id}}">End Task</button>
+                        </div>
                     </div>
                 </div>
             </div>

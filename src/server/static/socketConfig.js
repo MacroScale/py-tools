@@ -27,6 +27,10 @@ function createConnection(id){
     });
 }
 
+function removeSocket(id){
+    socketLookup[id].close()
+}
+
 function killAllSocket(){
     for (id in socketLookup){
         socketLookup[id].close()

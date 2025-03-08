@@ -28,6 +28,17 @@ def api_start_task(tool_id):
         task_manager.start_task(tool_path, tool_id)
         return jsonify(status=200, task_id=tool_id)
 
+@app_server.route("/api/end/<int:tool_id>", methods=["GET"])
+def api_end_task(tool_id):
+    db = SQLiteDB()
+
+    # check if task is already running
+    if not task_manager.is_running(tool_id):
+        return jsonify(status=500, err="task is not running")
+    else:
+        task_manager.stop_task(tool_id)
+        return jsonify(status=200, task_id=tool_id)
+
 @app_server.route("/api/tasklist", methods=["GET"])
 def api_task_list():
     l = [] 

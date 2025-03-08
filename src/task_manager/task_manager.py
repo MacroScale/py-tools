@@ -40,6 +40,10 @@ class TaskManager:
         with self._lock:
             self.tasks[task_id]["status"] = "not_running"
 
+            script_arr = self.tasks[task_id]["tool_path"].split("/")
+            script_name = script_arr[len(script_arr)-1]
+            self.tasks[task_id]["slogger"].add_log("os", f"task ended: {script_name}\n")
+
     def run_script(self, tool_path, task_id):
         try:
             process = Popen([sys.executable, "-u", tool_path],
@@ -94,7 +98,7 @@ class TaskManager:
             if task_id in self.tasks:
                 script_arr = self.tasks[task_id]["tool_path"].split("/")
                 script_name = script_arr[len(script_arr)-1]
-                self.tasks[task_id]["slogger"].add_log("init", f"task started: {script_name}\n")
+                self.tasks[task_id]["slogger"].add_log("os", f"task started: {script_name}\n")
 
     def get_task_info(self, task_id):
         with self._lock:
@@ -140,6 +144,12 @@ class TaskManager:
         task_info = self.get_task_info(task_id)
         if task_info and task_info["process"] and task_info["stream_output_thread"]:
             task_info["process"].terminate()
+            task_info["status"] = "not_running"
+
+            script_arr = self.tasks[task_id]["tool_path"].split("/")
+            script_name = script_arr[len(script_arr)-1]
+            self.tasks[task_id]["slogger"].add_log("os", f"task forcefully ended: {script_name}\n")
+
             print(f"Task {task_id} terminated.")
 
 task_manager = TaskManager()

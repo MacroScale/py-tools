@@ -41,6 +41,34 @@ async function startTask(event){
     }
 }
 
+async function endTask(event){
+    if (timePreviousAction+timeoutPeriod > Date.now()) { return; }
+    timePreviousAction = Date.now() 
+
+    id = Number(event.target.getAttribute("data-id").split("-")[1])
+
+    try {
+        //if (scriptsStatusLookup.filter(x => x.id==id)[0].status == "not_running"){
+            console.log("ending task:", id)
+            // send request to start task and wait for 200 resp
+            let resp = await fetch(`/api/end/${id}`);
+            let respData = await resp.json()
+
+            console.log(respData)
+            if (respData.status !== 200) {
+                throw Error(`server error (${respData.status}): ${respData.err}`)
+            }
+
+            let taskList = await getTaskList()
+            updateStatus(taskList)
+        //}
+    }
+    catch (err){
+        console.log("Error starting task:", err)
+        return;
+    }
+}
+
 function updateStatus(taskList){
     let els = document.getElementsByClassName("cur-status");
 
@@ -53,11 +81,6 @@ function updateStatus(taskList){
 
         el.textContent = newStatus;
     } 
-}
-
-async function endTask(event){
-    if (timePreviousAction+timeoutPeriod > Date.now()) { return; }
-    timePreviousAction = Date.now() 
 }
 
 async function getTaskList(){
