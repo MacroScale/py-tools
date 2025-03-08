@@ -18,5 +18,3 @@ def main():
 
 if __name__ == "__main__":
     main()
-    
-application = app_server # for gunicorn
