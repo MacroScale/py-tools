@@ -22,7 +22,7 @@ def api_start_task(tool_id):
     tool_path = query_get_tool_path.run(db, tool_id)
 
     # check if task is already running
-    if (task_manager.exists(tool_id)):
+    if (task_manager.is_running(tool_id)):
         return jsonify(status=500, err="task is already running")
     else:
         task_manager.start_task(tool_path, tool_id)
@@ -36,7 +36,6 @@ def api_task_list():
         l.append({
             "tool_id": task["tool_id"],
             "status": task["status"],
-            "unread": task["unread"]
         })
     return jsonify(task_list=l)
     
