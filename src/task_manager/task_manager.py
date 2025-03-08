@@ -121,11 +121,14 @@ class TaskManager:
     def get_output(self, task_id: int):
         with self._lock:
             if task_id in self.tasks:
-                return {
-                    "stdout": self.tasks[task_id]["slogger"].get_logs(),
-                    "stderr": self.tasks[task_id].get("stderr", "")
-                }
-        return {"stdout": "", "stderr": ""}
+                return self.tasks[task_id]["slogger"].get_logs()
+        return "";
+
+    def get_status(self, task_id: int):
+        with self._lock:
+            if task_id in self.tasks:
+                return self.tasks[task_id]["status"]
+        return "not_running"
 
     def delete_task(self, task_id: int):
         task_info = self.get_task_info(task_id)

@@ -21,9 +21,14 @@ function createConnection(id){
     });
 
     socket.on('stream', function(data) {
-        const out = data.stream_data.stdout
-        const area = document.getElementById("terminal-"+id).getElementsByTagName("textarea")[0]
+        const status = data.status
+        const out = data.out
+
+        const area = document.getElementById("terminal-"+id).getElementsByTagName("textarea")[0];
+        const statusEl= document.getElementById("status-"+id);
+
         area.value = out
+        statusEl.textContent = status;
     });
 }
 

@@ -14,8 +14,9 @@ async def dispatch_out_tools():
 
             # process output
             out = task_manager.get_output(id)
+            status = task_manager.get_status(id)
             if id in socket_conns:
                 session_id = socket_conns[id]
-                socketio.emit('stream', {"stream_data": out}, to=session_id)
+                socketio.emit('stream', {"out": out, "status": status}, to=session_id)
 
-        await asyncio.sleep(0.15)
+        await asyncio.sleep(0.2)
